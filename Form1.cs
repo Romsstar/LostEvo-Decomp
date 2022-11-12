@@ -185,11 +185,11 @@ namespace LostEvoRewrite
                 {
                     List<byte[]> filedata = new List<byte[]>(); ;
                     var path = fbd.SelectedPath;
-             
+
                     var inputFiles = Directory.EnumerateFiles(path).ToArray();
                     long padding = 0;
                     var i = 0;
-                    
+
                     int offset = inputFiles.Length * 16 + 16;
                     using (var output = File.Open("SPR_NCGR.bin", FileMode.Create))
                     using (var bw = new BinaryWriter(output, Encoding.UTF8, false))
@@ -214,11 +214,11 @@ namespace LostEvoRewrite
 
                             bw.Write(currentBytes.Length);
                             bw.Write(partitionList[i].flag);
-                            offset += (currentBytes.Length+align(currentBytes.Length, 0x04)); //Write Offset
+                            offset += (currentBytes.Length + align(currentBytes.Length, 0x04)); //Write Offset+Padding
                             filedata.Add(currentBytes);
-                            
+
                             i++;
-                        }  
+                        }
 
                         for (int file_idx = 0; file_idx < partitionList.Count(); file_idx++)
                         {
@@ -232,13 +232,13 @@ namespace LostEvoRewrite
                                 for (int y = 0; y < pads_to_write; ++y)
                                 {
                                     bw.Write((byte)0);
-                             
+
                                 }
 
-           
-                            }  
+
+                            }
                             i++;
-                      
+
 
                         }
                     }
