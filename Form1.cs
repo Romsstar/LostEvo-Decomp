@@ -35,6 +35,7 @@ namespace LostEvoRewrite
 
         public BinaryReader br;
         public uint numPartitions;
+        public byte[] curBytes;
         public List<partition> partitionList = new List<partition>();
         public static string dir = "extracted//";
         private static int[] text_buf = new int[4113];
@@ -68,12 +69,7 @@ namespace LostEvoRewrite
             }
         }
 
-        int PaddingCalc(int pos, int align)
-        {
-            int tmp = (align - 1);
-            align -= (pos & tmp);
-            return tmp & align;
-        } 
+
 
         private void extractToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -81,18 +77,15 @@ namespace LostEvoRewrite
             foreach (var entry in partitionList)
             {
                 br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
-          
-                    data = br.ReadBytes((int)entry.encsize);
+
+                data = br.ReadBytes((int)entry.encsize);
 
                 File.WriteAllBytes(dir + (entry.filenum) + ".bin", data);
             }
         }
-
-        private byte paddingCalc(int pos, byte align)
+        int align(long pos, int align)
         {
-            byte tmp = (byte)(align - 1);
-            align -= (byte)(pos & tmp);
-            return (byte)(tmp & align);
+            return (int)((align - (pos % align)) % align);
         }
 
         private byte[] Decompress(byte[] src)
@@ -108,21 +101,20 @@ namespace LostEvoRewrite
             r6 = r2;
             buferIdx = r0;
             flagByte = 0;
-     
+
 
             Array.Clear(buffer2, (int)flagByte, (int)curBuff);
 
             r0 = BitConverter.ToUInt32(src, (int)buferIdx);
             buferIdx += 4;
 
-            
+
             while (r0 > 0)
             {
-          
+
                 curResult = flagByte << 15;
                 flagByte = curResult >> 16;
 
-         
                 if ((flagByte & 0x100) != 0x100)
                 {
                     r0 = r0 - 1;
@@ -134,10 +126,9 @@ namespace LostEvoRewrite
                     flagByte = curResult >> 16;
                 }
 
-               
+
                 if ((flagByte & 0x1) == 0x1)
                 {
-                    
                     r0 = r0 - 1;
                     curResult = src[buferIdx++];
                     if ((int)r0 < 0) break;
@@ -166,19 +157,16 @@ namespace LostEvoRewrite
 
                 do
                 {
-         
                     r2 = curResult2 + lr;
                     r2 = r2 & curResult;
                     r3 = buffer2[r6 + r2];
                     lr = lr + 1;
-                    r2 = curBuff + 1;         
+                    r2 = curBuff + 1;
                     buffer.Add((byte)r3);
                     buffer2[r6 + curBuff] = (byte)r3;
                     curBuff = r2 & curResult;
                 } while (lr <= r9);
             }
-
-
             return buffer.ToArray();
         }
 
@@ -195,46 +183,62 @@ namespace LostEvoRewrite
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
+                    List<byte[]> filedata = new List<byte[]>(); ;
                     var path = fbd.SelectedPath;
+             
                     var inputFiles = Directory.EnumerateFiles(path).ToArray();
                     long padding = 0;
-                    byte[] pad;
                     var i = 0;
+                    
                     int offset = inputFiles.Length * 16 + 16;
-                    using (var output = File.Open("table.bin", FileMode.Create))
+                    using (var output = File.Open("SPR_NCGR.bin", FileMode.Create))
                     using (var bw = new BinaryWriter(output, Encoding.UTF8, false))
                     {
+                        //PAK Header
                         bw.Write(inputFiles.Length);
                         bw.Write(0x31302e32);
                         bw.Write(padding);
 
-
-                        using (var stream = File.OpenWrite("result.bin"))
+                        foreach (var inputFile in inputFiles)
                         {
-                            foreach (var inputFile in inputFiles)
+                            var currentBytes = File.ReadAllBytes(inputFile);
+                            bw.Write(offset);
+                            if (partitionList[i].flag == 0) //If File is compressed
                             {
-                                var currentBytes = File.ReadAllBytes(inputFile);
-                                //bw.Write(offset);
-                                //if (partitionList[i].flag == 0)
-                                //{
-
-                                //    bw.Write(Decompress(currentBytes).Length);
-
-                                //}
-                                //else
-                                //{
-                                //    bw.Write(currentBytes.Length);
-
-                                //}
-                                //bw.Write(currentBytes.Length);
-                                //bw.Write(partitionList[i].flag);
-
-                                //offset += currentBytes.Length;
-                                //i++;
-                                stream.Write(currentBytes, 0, currentBytes.Length);
-                                stream.Write(new byte[0], 0, paddingCalc((int)stream.Position, 0x20));
+                                bw.Write(Decompress(currentBytes).Length); //Write Decompressed Filesize in table
+                            }
+                            else
+                            {
+                                bw.Write(currentBytes.Length); //Else write its original size
                             }
 
+                            bw.Write(currentBytes.Length);
+                            bw.Write(partitionList[i].flag);
+                            offset += (currentBytes.Length+align(currentBytes.Length, 0x04)); //Write Offset
+                            filedata.Add(currentBytes);
+                            
+                            i++;
+                        }  
+
+                        for (int file_idx = 0; file_idx < partitionList.Count(); file_idx++)
+                        {
+                            var fileBytes = filedata[file_idx];
+                            var flag = partitionList[file_idx].flag;
+                            bw.Write(fileBytes, 0, fileBytes.Length);
+
+                            if (flag == 0)
+                            {
+                                int pads_to_write = align(bw.BaseStream.Position, 0x4);
+                                for (int y = 0; y < pads_to_write; ++y)
+                                {
+                                    bw.Write((byte)0);
+                             
+                                }
+
+           
+                            }  
+                            i++;
+                      
 
                         }
                     }
@@ -243,4 +247,8 @@ namespace LostEvoRewrite
         }
     }
 }
+
+
+
+
 
