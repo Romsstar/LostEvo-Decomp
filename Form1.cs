@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +7,9 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -36,6 +39,7 @@ namespace LostEvoRewrite
         public BinaryReader br;
         public uint numPartitions;
         public byte[] curBytes;
+        public static string filetableName;
         public List<partition> partitionList = new List<partition>();
         public static string dir = "extracted//";
         private static int[] text_buf = new int[4113];
@@ -52,7 +56,7 @@ namespace LostEvoRewrite
                     br = new BinaryReader(fs);
                     numPartitions = br.ReadUInt32();
                     char[] sVersion = br.ReadChars(12);
-
+                    filetableName = System.IO.Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
 
                     partition partitionArray = new partition();
                     for (int i = 0; i < numPartitions; i++)
@@ -65,9 +69,15 @@ namespace LostEvoRewrite
                         partitionList.Add(partitionArray);
                     }
 
-                }
+                    File.WriteAllText(Directory.CreateDirectory(filetableName+"\\") + filetableName+".json", JsonConvert.SerializeObject(partitionList, Formatting.Indented));
+                } 
             }
+        
+                        
+                    
         }
+
+        
 
 
 
@@ -87,6 +97,7 @@ namespace LostEvoRewrite
         {
             return (int)((align - (pos % align)) % align);
         }
+
 
         private byte[] Decompress(byte[] src)
         {
@@ -184,11 +195,15 @@ namespace LostEvoRewrite
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
                     List<byte[]> filedata = new List<byte[]>(); ;
-                    var path = fbd.SelectedPath;
+                    var path = fbd.SelectedPath+"\\extracted";
 
                     var inputFiles = Directory.EnumerateFiles(path).ToArray();
                     long padding = 0;
                     var i = 0;
+                    string pathName = new DirectoryInfo(fbd.SelectedPath).Name;
+                    string jsonFile = pathName + "\\" + pathName + ".json";
+                    string json = File.ReadAllText(jsonFile);
+                    partitionList = JsonConvert.DeserializeObject<List<partition>>(json);
 
                     int offset = inputFiles.Length * 16 + 16;
                     using (var output = File.Open("SPR_NCGR.bin", FileMode.Create))
@@ -203,6 +218,7 @@ namespace LostEvoRewrite
                         {
                             var currentBytes = File.ReadAllBytes(inputFile);
                             bw.Write(offset);
+                      
                             if (partitionList[i].flag == 0) //If File is compressed
                             {
                                 bw.Write(Decompress(currentBytes).Length); //Write Decompressed Filesize in table
