@@ -69,15 +69,15 @@ namespace LostEvoRewrite
                         partitionList.Add(partitionArray);
                     }
 
-                    File.WriteAllText(Directory.CreateDirectory(filetableName+"\\") + filetableName+".json", JsonConvert.SerializeObject(partitionList, Formatting.Indented));
-                } 
+                    File.WriteAllText(Directory.CreateDirectory(filetableName + "\\") + filetableName + ".json", JsonConvert.SerializeObject(partitionList, Formatting.Indented));
+                }
             }
-        
-                        
-                    
+
+
+
         }
 
-        
+
 
 
 
@@ -101,23 +101,23 @@ namespace LostEvoRewrite
 
         private byte[] Decompress(byte[] src)
         {
-            var buffer = new List<byte>();
-            byte[] buffer2 = new byte[4096];
-            uint r0, curResult, r2, r3, flagByte, curBuff, r6, buferIdx, r9, curResult2, lr;
+            var output = new List<byte>();
+            byte[] buffer = new byte[4096];
+            uint r0, curResult, r2, r3, flagByte, curBuff,bufferIdx, r9, curResult2, lr;
             r0 = 0;
             curResult = 0;
             r2 = 0;
 
             curBuff = 4078;
-            r6 = r2;
-            buferIdx = r0;
+        
+            bufferIdx = r0;
             flagByte = 0;
 
 
-            Array.Clear(buffer2, (int)flagByte, (int)curBuff);
+            Array.Clear(buffer, (int)flagByte, (int)curBuff);
 
-            r0 = BitConverter.ToUInt32(src, (int)buferIdx);
-            buferIdx += 4;
+            r0 = BitConverter.ToUInt32(src, (int)bufferIdx);
+            bufferIdx += 4;
 
 
             while (r0 > 0)
@@ -129,36 +129,34 @@ namespace LostEvoRewrite
                 if ((flagByte & 0x100) != 0x100)
                 {
                     r0 = r0 - 1;
-                    curResult = src[buferIdx++];
-                    if ((int)r0 < 0) break;
+                    curResult = src[bufferIdx++];
+                    if (bufferIdx < 0) break;
 
                     curResult = curResult | 0xFF00;
                     curResult = curResult << 16;
                     flagByte = curResult >> 16;
                 }
 
-
                 if ((flagByte & 0x1) == 0x1)
                 {
                     r0 = r0 - 1;
-                    curResult = src[buferIdx++];
-                    if ((int)r0 < 0) break;
+                    curResult = src[bufferIdx++];
+                    if (bufferIdx < 0) break;
                     r3 = curResult & 0xFF;
-                    buffer.Add((byte)r3);
+                    output.Add((byte)r3);
                     curResult = 4095;
-                    r2 = curBuff + 1;
-                    buffer2[r6 + curBuff] = (byte)r3;
+                    buffer[curBuff++] = (byte)r3;
                     curBuff = r2 & curResult;
                     continue;
                 }
 
-                r3 = src[buferIdx];
+                r3 = src[bufferIdx];
                 curResult = r0 - 1;
                 if ((int)curResult < 0) break;
-                curResult = src[buferIdx + 1];
-                buferIdx = buferIdx + 2;
+                curResult = src[bufferIdx + 1];
+                bufferIdx = bufferIdx + 2;
                 r0 = r0 - 2;
-                if ((int)r0 < 0) break;
+                if (bufferIdx < 0) break;
                 r2 = curResult & 0xF0;
                 curResult = curResult & 0xF;
                 r9 = curResult + 2;
@@ -170,18 +168,17 @@ namespace LostEvoRewrite
                 {
                     r2 = curResult2 + lr;
                     r2 = r2 & curResult;
-                    r3 = buffer2[r6 + r2];
+                    r3 = buffer[r2++];
                     lr = lr + 1;
-                    r2 = curBuff + 1;
-                    buffer.Add((byte)r3);
-                    buffer2[r6 + curBuff] = (byte)r3;
+                    output.Add((byte)r3);
+                    buffer[curBuff++] = (byte)r3;
                     curBuff = r2 & curResult;
                 } while (lr <= r9);
             }
-            return buffer.ToArray();
+            return output.ToArray();
         }
 
-
+       
 
 
 
@@ -195,7 +192,7 @@ namespace LostEvoRewrite
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
                     List<byte[]> filedata = new List<byte[]>(); ;
-                    var path = fbd.SelectedPath+"\\extracted";
+                    var path = fbd.SelectedPath + "\\extracted";
 
                     var inputFiles = Directory.EnumerateFiles(path).ToArray();
                     long padding = 0;
@@ -218,7 +215,7 @@ namespace LostEvoRewrite
                         {
                             var currentBytes = File.ReadAllBytes(inputFile);
                             bw.Write(offset);
-                      
+
                             if (partitionList[i].flag == 0) //If File is compressed
                             {
                                 bw.Write(Decompress(currentBytes).Length); //Write Decompressed Filesize in table
