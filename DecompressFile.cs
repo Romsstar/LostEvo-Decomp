@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace LostEvoRewrite
 {
@@ -20,8 +18,8 @@ namespace LostEvoRewrite
             flagByte = 0;
 
 
-            Array.Clear(buffer, (int)flagByte, (int)curBuff);
-            r0 = BitConverter.ToInt32(src, (int)bufferIdx);
+            Array.Clear(buffer, flagByte, curBuff);
+            r0 = BitConverter.ToInt32(src, bufferIdx);
             bufferIdx += 4;
 
             while (r0 > 0)
@@ -32,13 +30,13 @@ namespace LostEvoRewrite
                 {
                     r0 = r0 - 1;
                     flagByte = (src[bufferIdx++] << 16 >> 16 | 0xFF00);
-                    if ((int)r0 < 0) break;
+                    if (r0 < 0) break;
                 }
 
                 if ((flagByte & 0x1) == 0x1)
                 {
                     r0 = r0 - 1;
-                    if ((int)r0 < 0) break;
+                    if (r0 < 0) break;
                     r3 = (src[bufferIdx++] & 0xFF);
                     output.Add((byte)r3);
                     r2 = curBuff + 1;
@@ -48,7 +46,7 @@ namespace LostEvoRewrite
                 }
 
                 r0 = r0 - 2;
-                if ((int)r0 < 0) break;
+                if (r0 < 0) break;
                 r2 = (src[bufferIdx + 1] & 0xF0) << 4;
                 length = (src[bufferIdx + 1] & 0xF) + 2;
                 curResult = src[bufferIdx] | r2;

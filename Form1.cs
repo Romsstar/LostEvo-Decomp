@@ -54,7 +54,7 @@ namespace LostEvoRewrite
     br = new BinaryReader(fs);
     numPartitions = br.ReadUInt32();
     char[] sVersion = br.ReadChars(12);
-    filetableName = System.IO.Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
+    filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
 
     partition partitionArray = new partition();
     for (int i = 0; i < numPartitions; i++)

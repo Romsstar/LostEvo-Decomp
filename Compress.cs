@@ -1,9 +1,9 @@
 ﻿    using System;
     using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+
 using System.Text;
-using System.Windows.Forms;
+
 
 namespace LostEvoRewrite
 {
@@ -128,7 +128,6 @@ namespace LostEvoRewrite
 
         public static byte[] CompressFile(byte[] data)
         {
-            var sizeData = data.Length;
             int i,
             c,
             len,
@@ -139,8 +138,7 @@ namespace LostEvoRewrite
             var code_buf = new byte[17];
 
             var output = new List<byte>();
-            var final = new List<byte>();
-
+           
             var inputIdx = 0;
 
             for (i = 4097; i <= 4352; i++) rson[i] = 4096;
