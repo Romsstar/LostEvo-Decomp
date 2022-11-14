@@ -32,8 +32,10 @@ namespace LostEvoRewrite
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.compressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.decompressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -43,7 +45,9 @@ namespace LostEvoRewrite
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.extractToolStripMenuItem,
-            this.importToolStripMenuItem});
+            this.importToolStripMenuItem,
+            this.compressToolStripMenuItem,
+            this.decompressToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 28);
@@ -64,16 +68,30 @@ namespace LostEvoRewrite
             this.extractToolStripMenuItem.Text = "Extract";
             this.extractToolStripMenuItem.Click += new System.EventHandler(this.extractToolStripMenuItem_Click);
             // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
-            // 
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
             this.importToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+            // 
+            // compressToolStripMenuItem
+            // 
+            this.compressToolStripMenuItem.Name = "compressToolStripMenuItem";
+            this.compressToolStripMenuItem.Size = new System.Drawing.Size(88, 24);
+            this.compressToolStripMenuItem.Text = "Compress";
+            this.compressToolStripMenuItem.Click += new System.EventHandler(this.compressToolStripMenuItem_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // decompressToolStripMenuItem
+            // 
+            this.decompressToolStripMenuItem.Name = "decompressToolStripMenuItem";
+            this.decompressToolStripMenuItem.Size = new System.Drawing.Size(105, 24);
+            this.decompressToolStripMenuItem.Text = "Decompress";
+            this.decompressToolStripMenuItem.Click += new System.EventHandler(this.decompressToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -97,6 +115,8 @@ namespace LostEvoRewrite
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ToolStripMenuItem extractToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem compressToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem decompressToolStripMenuItem;
     }
 }
 
