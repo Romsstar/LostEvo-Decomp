@@ -38,19 +38,19 @@ namespace LostEvoRewrite
                     r0 = r0 - 1;
                     if (r0 < 0) break;
                     r3 = (src[bufferIdx++] & 0xFF);
-                    output.Add((byte)r3);
-                    r2 = curBuff + 1;
+                    output.Add((byte)r3); 
                     buffer[r6 + curBuff] = (byte)r3;
                     curBuff = (curBuff + 1) & 4095;
                     continue;
                 }
 
-                r0 = r0 - 2;
+                r0 -= 2;
                 if (r0 < 0) break;
+            
                 r2 = (src[bufferIdx + 1] & 0xF0) << 4;
                 length = (src[bufferIdx + 1] & 0xF) + 2;
                 curResult = src[bufferIdx] | r2;
-                bufferIdx = bufferIdx + 2;
+                bufferIdx += 2;
 
                 for (int i = 0; i <= length; i++)
                 {

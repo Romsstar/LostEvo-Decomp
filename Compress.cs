@@ -230,7 +230,7 @@ namespace LostEvoRewrite
         {         
                 var data = File.ReadAllBytes(PAKFile);
                 byte[] compressed = CompressFile(data);
-                using (var output = File.Open(Path.GetFileNameWithoutExtension(PAKFile) + ".enc", FileMode.Create))
+                  using (var output = File.Open(Path.GetFileNameWithoutExtension(PAKFile) + ".enc", FileMode.Create))
                 using (var bw = new BinaryWriter(output, Encoding.UTF8, false))
                 {
                     bw.Write(compressed.Length);
