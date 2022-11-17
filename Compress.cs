@@ -3,9 +3,10 @@
 using System.IO;
 
 using System.Text;
+    using System.Text.RegularExpressions;
 
 
-namespace LostEvoRewrite
+    namespace LostEvoRewrite
 {
     public class Compress
     {
@@ -224,13 +225,22 @@ namespace LostEvoRewrite
 
             return output.ToArray();
         }
+        public static string PadNumbers(string input, int maxStringLength)
+        {
+         var fileName = Path.GetFileNameWithoutExtension(Regex.Replace(input, "file_", ""));
+         return  Regex.Replace(fileName, "[0-9]+", match => match.Value.PadLeft(maxStringLength, '0'));
+        }
+
+ 
 
 
-        public static void CompressFiles(string PAKFile)
-        {         
+
+        public static void CompressFiles(string PAKFile, string path)
+        {
+            string extension= Path.GetExtension(PAKFile);
                 var data = File.ReadAllBytes(PAKFile);
                 byte[] compressed = CompressFile(data);
-                  using (var output = File.Open(Path.GetFileNameWithoutExtension(PAKFile) + ".enc", FileMode.Create))
+                  using (var output = File.Open(path + "//" + PadNumbers(PAKFile,4) + extension, FileMode.Create))
                 using (var bw = new BinaryWriter(output, Encoding.UTF8, false))
                 {
                     bw.Write(compressed.Length);

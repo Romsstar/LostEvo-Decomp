@@ -68,6 +68,8 @@ namespace LostEvoRewrite
                     char[] sVersion = br.ReadChars(12);
                     filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
 
+
+            
                     partition partitionArray = new partition();
                     for (int i = 0; i < numPartitions; i++)
                     {
@@ -85,13 +87,27 @@ namespace LostEvoRewrite
                         File.WriteAllText(Directory.CreateDirectory(filetableName + "\\") + filetableName + ".json",
                             JsonConvert.SerializeObject(partitionList, Formatting.Indented));
                     }
-                    //free the stream
-                    br.Close();
-                    fs.Close();
+
+                    
+
+
+                    foreach (var entry in partitionList)
+                    {
+                        br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
+
+                        data = br.ReadBytes((int)entry.encsize);
+                        File.WriteAllBytes(dir + PadNumbers(entry.filenum, 4) + ".bin", data);
+                    }
 
                 }
             }
         }
+        
+
+
+ 
+
+
 
 
         private void compressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -100,7 +116,7 @@ namespace LostEvoRewrite
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string PAKFile = openFileDialog1.FileName;
-                CompressFiles(PAKFile);
+               // CompressFiles(PAKFile);
             }
         }
 
@@ -139,6 +155,8 @@ namespace LostEvoRewrite
             using (var fbd = new FolderBrowserDialog())
 
             {
+             
+                
                 DialogResult result = fbd.ShowDialog();
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
@@ -156,7 +174,7 @@ namespace LostEvoRewrite
                     partitionList = JsonConvert.DeserializeObject<List<partition>>(json);
 
                     int offset = inputFiles.Length * 16 + 16;
-                    using (var output = File.Open("SPR_NCGR.bin", FileMode.Create))
+                    using (var output = File.Open(fbd.SelectedPath + ".bin", FileMode.Create))
                     using (var bw = new BinaryWriter(output, Encoding.UTF8, false))
                     {
                         //PAK Header
@@ -223,14 +241,14 @@ namespace LostEvoRewrite
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    var path = fbd.SelectedPath + "\\decompressed";
+                    var path = fbd.SelectedPath;
                     var inputFiles = Directory.EnumerateFiles(path).ToArray();
                    
              
                     //CompressFiles on all files in folder
                     foreach (var inputFile in inputFiles)
                     {
-                        CompressFiles(inputFile);
+                        CompressFiles(inputFile, path);
 
                     }
 
