@@ -55,57 +55,105 @@ namespace LostEvoRewrite
         {
             return File.Exists(path);
         }
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            {
-                openFileDialog1.Filter = "PAK files|*.PAK|All Files|*.*";
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    string PAKFile = openFileDialog1.FileName;
-                    FileStream fs = new FileStream(PAKFile, FileMode.Open);
-                    br = new BinaryReader(fs);
-                    numPartitions = br.ReadUInt32();
-                    char[] sVersion = br.ReadChars(12);
-                    filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
-
-
-            
-                    partition partitionArray = new partition();
-                    for (int i = 0; i < numPartitions; i++)
-                    {
-                        partitionArray.filenum = "" + i;
-                        partitionArray.offset = br.ReadUInt32();
-                        partitionArray.decsize = br.ReadUInt32();
-                        partitionArray.encsize = br.ReadUInt32();
-                        partitionArray.flag = br.ReadUInt32();
-                        partitionList.Add(partitionArray);
-                    }
-
-                    //if json doesn't exist
-                    if (!FileExists(dir + filetableName + ".json"))
-                    {
-                        File.WriteAllText(Directory.CreateDirectory(filetableName + "\\") + filetableName + ".json",
-                            JsonConvert.SerializeObject(partitionList, Formatting.Indented));
-                    }
-
-                    
-
-
-                    foreach (var entry in partitionList)
-                    {
-                        br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
-
-                        data = br.ReadBytes((int)entry.encsize);
-                        File.WriteAllBytes(dir + PadNumbers(entry.filenum, 4) + ".bin", data);
-                    }
-
-                }
-            }
-        }
         
 
 
- 
+        private string findExtension(string PAKFile)
+        {
+   
+            if (PAKFile.Contains("NCGR"))
+            {
+                return ".ncgr";
+            }
+            else if (PAKFile.Contains("NSCR"))
+            {
+                return ".nscr";
+            }
+            else if (PAKFile.Contains("NCLR"))
+            {
+                return ".nclr";
+            }
+            else if (PAKFile.Contains("NFTR"))
+            {
+                return ".nftr";
+            }
+            else if (PAKFile.Contains("NANR"))
+            {
+                return ".nanr";
+            }
+            else if (PAKFile.Contains("NCER"))
+            {
+                return ".ncer";
+            }
+            else if (PAKFile.Contains("NMCR"))
+            {
+                return ".nmcr";
+            }
+            else if (PAKFile.Contains("NSBTX"))
+            {
+                return ".nsbtx";
+            }
+            else if (PAKFile.Contains("NSBMD"))
+            {
+                return ".nsbmd";
+            }
+            else if (PAKFile.Contains("NSBCA"))
+            {
+                return ".nsbca";
+            }
+
+            return ".bin";
+        }
+
+
+        private string findExtension(byte[] file)
+        {
+            string ext4 = Encoding.ASCII.GetString(file, 0, 4);
+            if (ext4 == "RGCN")
+            {
+                return ".ncgr";
+            }
+            else if (ext4 == "RCSN")
+            {
+                return ".nscr";
+            }
+            else if (ext4 == "RLCN")
+            {
+                return ".nclr";
+            }
+            else if (ext4 == "RTFN")
+            {
+                return ".nftr";
+            }
+            else if (ext4 == "RNAN")
+            {
+                return ".nanr";
+            }
+            else if (ext4 == "RECN")
+            {
+                return ".ncer";
+            }
+            else if (ext4 == "RCMN")
+            {
+                return ".nmcr";
+            }
+            else if (ext4 == "BXT0")
+            {
+                return ".nsbtx";
+            }
+            else if (ext4 == "BMD0")
+            {
+                return ".nsbmd";
+            }
+            else if (ext4 == "BCA0")
+            {
+                return ".nsbca";
+            }
+
+            return ".bin";
+        }
+
+
 
 
 
@@ -255,7 +303,105 @@ namespace LostEvoRewrite
                 }
             }
         }
-    }}
+
+        private void extractPAKToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            {
+                openFileDialog1.Filter = "PAK files|*.PAK|All Files|*.*";
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string PAKFile = openFileDialog1.FileName;
+                    FileStream fs = new FileStream(PAKFile, FileMode.Open);
+                    br = new BinaryReader(fs);
+                    numPartitions = br.ReadUInt32();
+                    char[] sVersion = br.ReadChars(12);
+                    filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
+
+
+
+                    partition partitionArray = new partition();
+                    for (int i = 0; i < numPartitions; i++)
+                    {
+                        partitionArray.filenum = "" + i;
+                        partitionArray.offset = br.ReadUInt32();
+                        partitionArray.decsize = br.ReadUInt32();
+                        partitionArray.encsize = br.ReadUInt32();
+                        partitionArray.flag = br.ReadUInt32();
+                        partitionList.Add(partitionArray);
+                    }
+
+                    //if directory doesn't exist, create it
+                    if (!Directory.Exists(dir))
+                    {
+                        if (filetableName != null) Directory.CreateDirectory(filetableName);
+                    }
+                    //if json doesn't exist
+                    if (!FileExists(dir + filetableName + ".json"))
+                    {
+                        File.WriteAllText(filetableName + "\\" + filetableName + ".json",
+                        JsonConvert.SerializeObject(partitionList, Formatting.Indented));
+                    }
+
+                    foreach (var entry in partitionList)
+                    {
+                        br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
+
+                        data = br.ReadBytes((int)entry.encsize);
+                        File.WriteAllBytes(filetableName+"\\"+PadNumbers(entry.filenum, 4) + findExtension(filetableName), data);
+                    }
+
+                }
+            }
+        }
+
+        private void extractDuskDawnPAKToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Filter = "PAK files|*.PAK|All Files|*.*";
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string PAKFile = openFileDialog1.FileName;
+                FileStream fs = new FileStream(PAKFile, FileMode.Open);
+                br = new BinaryReader(fs);
+                numPartitions = br.ReadUInt32();
+                 filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
+
+
+
+                partition partitionArray = new partition();
+                for (int i = 0; i < numPartitions; i++)
+                {
+                    partitionArray.filenum = "" + i;
+                    partitionArray.offset = br.ReadUInt32();
+                    partitionArray.decsize = br.ReadUInt32();
+                    partitionList.Add(partitionArray);
+                }
+
+                //if directory doesn't exist, create it
+                if (!Directory.Exists(dir))
+                {
+                    if (filetableName != null) Directory.CreateDirectory(filetableName);
+                }
+                //if json doesn't exist
+                if (!FileExists(dir + filetableName + ".json"))
+                {
+                    File.WriteAllText(filetableName + "\\" + filetableName + ".json",
+                    JsonConvert.SerializeObject(partitionList, Formatting.Indented));
+                }
+
+                foreach (var entry in partitionList)
+                {
+                    br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
+
+                    data = br.ReadBytes((int)((int)entry.decsize - 0x80000000));
+                    File.WriteAllBytes(filetableName + "\\" + PadNumbers(entry.filenum, 4) + findExtension(filetableName), data);
+                }
+
+            }
+        }
+    }
+}
+    
+
         
     
 
