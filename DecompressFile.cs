@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.IO;
+using System.Text;
 
 namespace LostEvoRewrite
 {
@@ -64,5 +65,24 @@ namespace LostEvoRewrite
             return output.ToArray();
         }
 
-    }
-}
+        //Binary Writer for consistency reasons, File.WriteAllBytes works too
+        public static void DeCompressAll(string PAKFile, string path)
+        {
+            var data = File.ReadAllBytes(PAKFile);
+            byte[] decompressed = Decompress(data);
+            if (!Directory.Exists("decompressed"))
+            {
+                Directory.CreateDirectory("decompressed");
+            }
+            using (var output = File.Open(path + "/decompressed/" + Path.GetFileName(PAKFile), FileMode.Create))
+            using (var bw = new BinaryWriter(output, Encoding.UTF8, false))
+            {
+                bw.Write(decompressed);
+                
+            }
+        }
+        
+            }
+        }
+    
+

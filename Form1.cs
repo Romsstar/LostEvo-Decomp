@@ -15,11 +15,11 @@ namespace LostEvoRewrite
 
     public struct partition
     {
-    public string filenum;
-    public uint offset;
-    public uint decsize;
-    public uint encsize;
-    public uint flag; //0x80000000 = uncompressed, 0x0 = compressed
+        public string filenum;
+        public uint offset;
+        public uint decsize;
+        public uint encsize;
+        public uint flag; //0x80000000 = uncompressed, 0x0 = compressed
     };
 
     public partial class Form1 : Form
@@ -44,7 +44,7 @@ namespace LostEvoRewrite
             return (int)((align - (pos % align)) % align);
         }
 
-        
+
         public static string PadNumbers(string input, int maxStringLength)
         {
             return Regex.Replace(input, "[0-9]+", match => match.Value.PadLeft(maxStringLength, '0'));
@@ -55,12 +55,12 @@ namespace LostEvoRewrite
         {
             return File.Exists(path);
         }
-        
+
 
 
         private string findExtension(string PAKFile)
         {
-   
+
             if (PAKFile.Contains("NCGR"))
             {
                 return ".ncgr";
@@ -164,7 +164,7 @@ namespace LostEvoRewrite
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string PAKFile = openFileDialog1.FileName;
-               // CompressFiles(PAKFile);
+                // CompressFiles(PAKFile);
             }
         }
 
@@ -176,11 +176,21 @@ namespace LostEvoRewrite
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string PAKFile = openFileDialog1.FileName;
+                string extension = Path.GetExtension(PAKFile);
+                //get folder
+                string folder = Path.GetDirectoryName(PAKFile);
                 FileStream fs = new FileStream(PAKFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 br = new BinaryReader(fs);
                 byte[] data = File.ReadAllBytes(PAKFile);
                 byte[] decompressed = Decompress(data);
-                File.WriteAllBytes("miau" + ".decompressed", decompressed);
+                if (!Directory.Exists("decompressed"))
+                {
+                    Directory.CreateDirectory("decompressed");
+                }
+                string path = folder+"/decompressed/" + Path.GetFileNameWithoutExtension(PAKFile) + extension;
+                //create folder decompressed if it doesn't exist already
+               
+                File.WriteAllBytes(path, decompressed);
 
             }
         }
@@ -203,8 +213,8 @@ namespace LostEvoRewrite
             using (var fbd = new FolderBrowserDialog())
 
             {
-             
-                
+
+
                 DialogResult result = fbd.ShowDialog();
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
@@ -279,6 +289,9 @@ namespace LostEvoRewrite
             }
         }
 
+        //decompress Folder
+      
+
         private void compressFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var fbd = new FolderBrowserDialog())
@@ -291,8 +304,8 @@ namespace LostEvoRewrite
                 {
                     var path = fbd.SelectedPath;
                     var inputFiles = Directory.EnumerateFiles(path).ToArray();
-                   
-             
+
+
                     //CompressFiles on all files in folder
                     foreach (var inputFile in inputFiles)
                     {
@@ -335,11 +348,12 @@ namespace LostEvoRewrite
                     {
                         if (filetableName != null) Directory.CreateDirectory(filetableName);
                     }
+
                     //if json doesn't exist
                     if (!FileExists(dir + filetableName + ".json"))
                     {
                         File.WriteAllText(filetableName + "\\" + filetableName + ".json",
-                        JsonConvert.SerializeObject(partitionList, Formatting.Indented));
+                            JsonConvert.SerializeObject(partitionList, Formatting.Indented));
                     }
 
                     foreach (var entry in partitionList)
@@ -347,7 +361,8 @@ namespace LostEvoRewrite
                         br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
 
                         data = br.ReadBytes((int)entry.encsize);
-                        File.WriteAllBytes(filetableName+"\\"+PadNumbers(entry.filenum, 4) + findExtension(filetableName), data);
+                        File.WriteAllBytes(
+                            filetableName + "\\" + PadNumbers(entry.filenum, 4) + findExtension(filetableName), data);
                     }
 
                 }
@@ -363,7 +378,7 @@ namespace LostEvoRewrite
                 FileStream fs = new FileStream(PAKFile, FileMode.Open);
                 br = new BinaryReader(fs);
                 numPartitions = br.ReadUInt32();
-                 filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
+                filetableName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
 
 
 
@@ -381,11 +396,12 @@ namespace LostEvoRewrite
                 {
                     if (filetableName != null) Directory.CreateDirectory(filetableName);
                 }
+
                 //if json doesn't exist
                 if (!FileExists(dir + filetableName + ".json"))
                 {
                     File.WriteAllText(filetableName + "\\" + filetableName + ".json",
-                    JsonConvert.SerializeObject(partitionList, Formatting.Indented));
+                        JsonConvert.SerializeObject(partitionList, Formatting.Indented));
                 }
 
                 foreach (var entry in partitionList)
@@ -393,13 +409,44 @@ namespace LostEvoRewrite
                     br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
 
                     data = br.ReadBytes((int)((int)entry.decsize - 0x80000000));
-                    File.WriteAllBytes(filetableName + "\\" + PadNumbers(entry.filenum, 4) + findExtension(filetableName), data);
+                    File.WriteAllBytes(
+                        filetableName + "\\" + PadNumbers(entry.filenum, 4) + findExtension(filetableName), data);
                 }
 
             }
         }
+
+        private void decompressAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var fbd = new FolderBrowserDialog())
+
+            {
+
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    var path = fbd.SelectedPath;
+                    var inputFiles = Directory.EnumerateFiles(path).ToArray();
+
+
+                    //CompressFiles on all files in folder
+                    foreach (var inputFile in inputFiles)
+                    {
+                        //   DecompressFiles(inputFile, path);
+                        DeCompressAll(inputFile, path);
+                    }
+                 
+
+                }
+            }
+        }
+
+
     }
-}
+                }
+ 
+
     
 
         

@@ -32,12 +32,13 @@ namespace LostEvoRewrite
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractPAKToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractDuskDawnPAKToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.decompressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.extractDuskDawnPAKToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.decompressAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,7 +50,8 @@ namespace LostEvoRewrite
             this.importToolStripMenuItem,
             this.compressToolStripMenuItem,
             this.decompressToolStripMenuItem,
-            this.compressFolderToolStripMenuItem});
+            this.compressFolderToolStripMenuItem,
+            this.decompressAllToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(6, 3, 0, 3);
@@ -72,6 +74,13 @@ namespace LostEvoRewrite
             this.extractPAKToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
             this.extractPAKToolStripMenuItem.Text = "Extract PAK";
             this.extractPAKToolStripMenuItem.Click += new System.EventHandler(this.extractPAKToolStripMenuItem_Click);
+            // 
+            // extractDuskDawnPAKToolStripMenuItem
+            // 
+            this.extractDuskDawnPAKToolStripMenuItem.Name = "extractDuskDawnPAKToolStripMenuItem";
+            this.extractDuskDawnPAKToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
+            this.extractDuskDawnPAKToolStripMenuItem.Text = "Extract Dusk/Dawn PAK";
+            this.extractDuskDawnPAKToolStripMenuItem.Click += new System.EventHandler(this.extractDuskDawnPAKToolStripMenuItem_Click);
             // 
             // importToolStripMenuItem
             // 
@@ -105,12 +114,12 @@ namespace LostEvoRewrite
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // extractDuskDawnPAKToolStripMenuItem
+            // decompressAllToolStripMenuItem
             // 
-            this.extractDuskDawnPAKToolStripMenuItem.Name = "extractDuskDawnPAKToolStripMenuItem";
-            this.extractDuskDawnPAKToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
-            this.extractDuskDawnPAKToolStripMenuItem.Text = "Extract Dusk/Dawn PAK";
-            this.extractDuskDawnPAKToolStripMenuItem.Click += new System.EventHandler(this.extractDuskDawnPAKToolStripMenuItem_Click);
+            this.decompressAllToolStripMenuItem.Name = "decompressAllToolStripMenuItem";
+            this.decompressAllToolStripMenuItem.Size = new System.Drawing.Size(123, 24);
+            this.decompressAllToolStripMenuItem.Text = "DecompressAll";
+            this.decompressAllToolStripMenuItem.Click += new System.EventHandler(this.decompressAllToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -138,6 +147,7 @@ namespace LostEvoRewrite
         private System.Windows.Forms.ToolStripMenuItem compressFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem extractPAKToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem extractDuskDawnPAKToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem decompressAllToolStripMenuItem;
     }
 }
 
